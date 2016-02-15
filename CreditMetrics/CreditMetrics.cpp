@@ -12,6 +12,7 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <boost/numeric/ublas/matrix.hpp>
 using namespace std;
 
 static inline string& trim(string& s) {
@@ -227,21 +228,22 @@ public:
 		bbb(convertPercent(cells.at(4))),
 		bb(convertPercent(cells.at(5))),
 		b(convertPercent(cells.at(6))),
-		ccc(convertPercent(cells.at(7)))
+		ccc(convertPercent(cells.at(7))),
+		d(convertPercent(cells.at(8)))
 	{}
-	const double aaa, aa, a, bbb, bb, b, ccc;
+	const double aaa, aa, a, bbb, bb, b, ccc, d;
 	const string toString() const
 	{
 		return string() 
 			+ to_string(aaa) + "," + to_string(aa) + ","
 			+ to_string(a) + "," + to_string(bbb) + "," 
-			+ to_string(bb) + "," + to_string(b) + "," + to_string(ccc);
+			+ to_string(bb) + "," + to_string(b) + "," + to_string(ccc) + "," + to_string(d);
 	}
 };
 class TransitionData : public CSV<TransitionEntry>
 {
 public:
-	TransitionData() : CSV("transition_matrix_for_project.csv", 3) { }
+	TransitionData() : CSV("transition_matrix_for_project.csv", 3) {}
 };
 int main(int argc, char* argv[])
 {
