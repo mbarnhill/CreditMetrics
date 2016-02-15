@@ -39,129 +39,143 @@ static inline double convertPercent(string strPercent)
 
 template <class R> class CSV
 {
-	public:
-		CSV(const string& filename, size_t skipLines)
+public:
+	CSV(const string& filename, size_t skipLines)
+	{
+		ifstream file(filename);
+		if (!file.good())
 		{
-			ifstream file(filename);
-			if (!file.good())
-			{
-				throw runtime_error("File does not exist");
-			}
-			while (!file.eof())
-			{
-				string strline;
-				getline(file, strline);
-				if (skipLines > 0)
-				{
-					skipLines--;
-					continue;
-				}
-				if (strline.empty())
-				{
-					continue;
-				}
-				stringstream streamline(strline);
-				vector<string> cells;
-				while (!streamline.eof())
-				{
-					string cell;
-					getline(streamline, cell, ',');
-					if (cell != "")
-					{
-						cells.push_back(cell);
-					}
-				}
-				if (cells.empty())
-				{
-					continue;
-				}
-				rows.push_back(R(cells));
-			}
+			throw runtime_error("File does not exist");
 		}
-		size_t size() { return rows.size(); }
-		R& get(size_t i) { return rows[i]; }
-	private:
-		vector<R> rows;
+		while (!file.eof())
+		{
+			string strline;
+			getline(file, strline);
+			if (skipLines > 0)
+			{
+				skipLines--;
+				continue;
+			}
+			if (strline.empty())
+			{
+				continue;
+			}
+			stringstream streamline(strline);
+			vector<string> cells;
+			while (!streamline.eof())
+			{
+				string cell;
+				getline(streamline, cell, ',');
+				if (cell != "")
+				{
+					cells.push_back(cell);
+				}
+			}
+			if (cells.empty())
+			{
+				continue;
+			}
+			rows.push_back(R(cells));
+		}
+	}
+	size_t size() { return rows.size(); }
+	R& get(size_t i) { return rows[i]; }
+	const string toString()
+	{
+		string ret;
+		for (size_t i = 0, n = size(); i < n; i++)
+			ret = ret + get(i).toString() + "\n";
+		return ret;
+	}
+private:
+	vector<R> rows;
 };
 class IssuerEntry
 {
-	public: 
-		IssuerEntry(const vector<string>& cells):
-			name(cells.at(0)),
-			rating(cells.at(1)),
-			industry(cells.at(2))
-		{}
-		const string name;
-		const string rating;
-		const string industry;
+public: 
+	IssuerEntry(const vector<string>& cells):
+		name(cells.at(0)),
+		rating(cells.at(1)),
+		industry(cells.at(2))
+	{}
+	const string name;
+	const string rating;
+	const string industry;
+	const string toString() const
+	{
+		return string()
+			+ name + "," + rating + "," + industry;
+	}
 };
 class IssuerData : public CSV<IssuerEntry>
 {
-	public:
-		IssuerData() : CSV("issuers.csv", 1) { }
-		IssuerEntry* getByName(string name)
+public:
+	IssuerData() : CSV("issuers.csv", 1) { }
+	IssuerEntry* getByName(string name)
+	{
+		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			for (size_t i = 0, n = size(); i < n; i++)
-			{
-				IssuerEntry& issuer = get(i);
-				if(issuer.name == name)
-					return &issuer;
-			}
-			return nullptr;
+			IssuerEntry& issuer = get(i);
+			if(issuer.name == name)
+				return &issuer;
 		}
+		return nullptr;
+	}
 };
 class PortfolioEntry
 {
-	public:
-		PortfolioEntry(const vector<string>& cells) :
-			name(cells.at(0)),
-			instrumentType(cells.at(1)),
-			cusip(cells.at(2)),
-			notional(convertNotional(cells.at(3))),
-			maturity(cells.at(4)),
-			coupon(convertPercent(cells.at(5))),
-			couponsPerYear(convertInt(cells.at(6))),
-			price(convertPrice(cells.at(7))),
-			yield(convertPercent(cells.at(8))),
-			cleanPrice(convertPrice(cells.at(9))),
-			exprr(convertPercent(cells.at(10)))
-		{}
-		const string name;
-		const string instrumentType;
-		const string cusip;
-		const int notional;
-		const string maturity;
-		const double coupon;
-		const int couponsPerYear;
-		const double price;
-		const double yield;
-		const double cleanPrice;
-		const double exprr;
-	private:
-		int convertNotional(string strNotional)
-		{
-			return convertInt(strNotional) * 1000000;
-		}
-		double convertPrice(string strPrice)
-		{
-			replace(strPrice.begin(), strPrice.end(), '$', ' ');
-			return convertDouble(strPrice);
-		}	
+public:
+	PortfolioEntry(const vector<string>& cells) :
+		name(cells.at(0)),
+		instrumentType(cells.at(1)),
+		cusip(cells.at(2)),
+		notional(convertNotional(cells.at(3))),
+		maturity(cells.at(4)),
+		coupon(convertPercent(cells.at(5))),
+		couponsPerYear(convertInt(cells.at(6))),
+		price(convertPrice(cells.at(7))),
+		yield(convertPercent(cells.at(8))),
+		cleanPrice(convertPrice(cells.at(9))),
+		exprr(convertPercent(cells.at(10)))
+	{}
+	const string name, instrumentType, cusip, maturity;
+	const int notional, couponsPerYear;
+	const double coupon, price, yield, cleanPrice,exprr;
+	const string toString() const
+	{
+		return string()
+			+ name + "," + instrumentType + ","
+			+ cusip + "," + to_string(notional) + ","
+			+ maturity + "," + to_string(coupon) + ","
+			+ to_string(couponsPerYear) + "," + to_string(price) + ","
+			+ to_string(yield) + "," + to_string(cleanPrice) + ","
+			+ to_string(exprr);
+	}
+private:
+	int convertNotional(string strNotional)
+	{
+		return convertInt(strNotional) * 1000000;
+	}
+	double convertPrice(string strPrice)
+	{
+		replace(strPrice.begin(), strPrice.end(), '$', ' ');
+		return convertDouble(strPrice);
+	}
 };
 class PortfolioData : public CSV<PortfolioEntry>
 {
-	public:
-		PortfolioData() : CSV("portfolio_for_project.csv", 1) { }
-		PortfolioEntry* getByName(string name)
+public:
+	PortfolioData() : CSV("portfolio_for_project.csv", 1) { }
+	PortfolioEntry* getByName(string name)
+	{
+		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			for (size_t i = 0, n = size(); i < n; i++)
-			{
-				PortfolioEntry& issuer = get(i);
-				if (issuer.name == name)
-					return &issuer;
-			}
-			return nullptr;
+			PortfolioEntry& issuer = get(i);
+			if (issuer.name == name)
+				return &issuer;
 		}
+		return nullptr;
+	}
 };
 class YieldEntry
 {
@@ -177,15 +191,16 @@ public:
 		ccc(convertPercent(cells.at(7))),
 		govt(convertPercent(cells.at(8)))
 	{}
-	const double term;
-	const double aaa;
-	const double aa;
-	const double a;
-	const double bbb;
-	const double bb;
-	const double b;
-	const double ccc;
-	const double govt;
+	const double term, aaa, aa, a, bbb, bb, b, ccc, govt;
+	const string toString() const
+	{
+		return string() 
+			+ to_string(term) + "," + to_string(aaa) + ","
+			+ to_string(aa) + "," + to_string(a) + ","
+			+ to_string(bbb) + "," + to_string(bb) + ","
+			+ to_string(b) + "," + to_string(ccc) + ","
+			+ to_string(govt);
+	}
 };
 class YieldData : public CSV<YieldEntry>
 {
@@ -202,28 +217,44 @@ public:
 		return nullptr;
 	}
 };
+class TransitionEntry
+{
+public:
+	TransitionEntry(const vector<string>& cells) :
+		aaa(convertPercent(cells.at(1))),
+		aa(convertPercent(cells.at(2))),
+		a(convertPercent(cells.at(3))),
+		bbb(convertPercent(cells.at(4))),
+		bb(convertPercent(cells.at(5))),
+		b(convertPercent(cells.at(6))),
+		ccc(convertPercent(cells.at(7)))
+	{}
+	const double aaa, aa, a, bbb, bb, b, ccc;
+	const string toString() const
+	{
+		return string() 
+			+ to_string(aaa) + "," + to_string(aa) + ","
+			+ to_string(a) + "," + to_string(bbb) + "," 
+			+ to_string(bb) + "," + to_string(b) + "," + to_string(ccc);
+	}
+};
+class TransitionData : public CSV<TransitionEntry>
+{
+public:
+	TransitionData() : CSV("transition_matrix_for_project.csv", 3) { }
+};
 int main(int argc, char* argv[])
 {
 	try
 	{
-		IssuerData IssuerData;
-		for (size_t i = 0, n = IssuerData.size(); i < n; i++)
-		{
-			IssuerEntry issuer = IssuerData.get(i);
-			cout << issuer.name << "," << issuer.rating << "," << issuer.industry << "\n";
-		}
+		IssuerData issuerData;
+		cout << issuerData.toString();
 		PortfolioData portfolioData;
-		for (size_t i = 0, n = portfolioData.size(); i < n; i++)
-		{
-			PortfolioEntry entry = portfolioData.get(i);
-			cout << entry.name << "," << entry.cleanPrice << "\n";
-		}
+		cout << portfolioData.toString();
 		YieldData yieldData;
-		YieldEntry* yield = yieldData.getByTerm(15);
-		if (yield)
-			cout << yield->aaa << "\n";
-		else
-			cout << "Term " << 15 << " does not exist";
+		cout << yieldData.toString();
+		TransitionData transitionData;
+		cout << transitionData.toString();
 	}
 	catch (const exception &e)
 	{
