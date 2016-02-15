@@ -21,6 +21,21 @@ static inline string& trim(string& s) {
 	s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
 	return s;
 }
+static inline int convertInt(string strInt)
+{
+	trim(strInt);
+	return ::atoi(strInt.c_str());
+}
+static inline double convertDouble(string strDouble)
+{
+	trim(strDouble);
+	return ::atof(strDouble.c_str());
+}
+static inline double convertPercent(string strPercent)
+{
+	replace(strPercent.begin(), strPercent.end(), '%', ' ');
+	return convertDouble(strPercent) / 100;
+}
 
 template <class R> class CSV
 {
@@ -68,10 +83,10 @@ template <class R> class CSV
 	private:
 		vector<R> rows;
 };
-class IssuerRating
+class IssuerEntry
 {
 	public: 
-		IssuerRating(vector<string>& cells):
+		IssuerEntry(const vector<string>& cells):
 			name(cells.at(0)),
 			rating(cells.at(1)),
 			industry(cells.at(2))
@@ -80,15 +95,15 @@ class IssuerRating
 		const string rating;
 		const string industry;
 };
-class Issuers : public CSV<IssuerRating>
+class IssuerData : public CSV<IssuerEntry>
 {
 	public:
-		Issuers() : CSV("issuers.csv", 1) { }
-		IssuerRating* getByName(string name)
+		IssuerData() : CSV("issuers.csv", 1) { }
+		IssuerEntry* getByName(string name)
 		{
 			for (size_t i = 0, n = size(); i < n; i++)
 			{
-				IssuerRating& issuer = get(i);
+				IssuerEntry& issuer = get(i);
 				if(issuer.name == name)
 					return &issuer;
 			}
@@ -98,7 +113,7 @@ class Issuers : public CSV<IssuerRating>
 class PortfolioEntry
 {
 	public:
-		PortfolioEntry(vector<string>& cells) :
+		PortfolioEntry(const vector<string>& cells) :
 			name(cells.at(0)),
 			instrumentType(cells.at(1)),
 			cusip(cells.at(2)),
@@ -123,31 +138,15 @@ class PortfolioEntry
 		const double cleanPrice;
 		const double exprr;
 	private:
-		int convertInt(string strInt)
-		{
-			trim(strInt);
-			return ::atoi(strInt.c_str());
-		}
-		double convertDouble(string strDouble)
-		{
-			trim(strDouble);
-			return ::atof(strDouble.c_str());
-		}
 		int convertNotional(string strNotional)
 		{
 			return convertInt(strNotional) * 1000000;
-		}
-		double convertPercent(string strPercent)
-		{
-			replace(strPercent.begin(), strPercent.end(), '%', ' ');
-			return convertDouble(strPercent) / 100;
 		}
 		double convertPrice(string strPrice)
 		{
 			replace(strPrice.begin(), strPrice.end(), '$', ' ');
 			return convertDouble(strPrice);
-		}
-		
+		}	
 };
 class PortfolioData : public CSV<PortfolioEntry>
 {
@@ -164,14 +163,53 @@ class PortfolioData : public CSV<PortfolioEntry>
 			return nullptr;
 		}
 };
+class YieldEntry
+{
+public:
+	YieldEntry(const vector<string>& cells):
+		term(convertDouble(cells.at(0))),
+		aaa(convertPercent(cells.at(1))),
+		aa(convertPercent(cells.at(2))),
+		a(convertPercent(cells.at(3))),
+		bbb(convertPercent(cells.at(4))),
+		bb(convertPercent(cells.at(5))),
+		b(convertPercent(cells.at(6))),
+		ccc(convertPercent(cells.at(7))),
+		govt(convertPercent(cells.at(8)))
+	{}
+	const double term;
+	const double aaa;
+	const double aa;
+	const double a;
+	const double bbb;
+	const double bb;
+	const double b;
+	const double ccc;
+	const double govt;
+};
+class YieldData : public CSV<YieldEntry>
+{
+public:
+	YieldData() : CSV("yield_curve_for_project.csv", 1) { }
+	YieldEntry* getByTerm(double term)
+	{
+		for (size_t i = 0, n = size(); i < n; i++)
+		{
+			YieldEntry& yield = get(i);
+			if (yield.term == term)
+				return &yield;
+		}
+		return nullptr;
+	}
+};
 int main(int argc, char* argv[])
 {
 	try
 	{
-		Issuers issuers;
-		for (size_t i = 0, n = issuers.size(); i < n; i++)
+		IssuerData IssuerData;
+		for (size_t i = 0, n = IssuerData.size(); i < n; i++)
 		{
-			IssuerRating issuer = issuers.get(i);
+			IssuerEntry issuer = IssuerData.get(i);
 			cout << issuer.name << "," << issuer.rating << "," << issuer.industry << "\n";
 		}
 		PortfolioData portfolioData;
@@ -180,6 +218,12 @@ int main(int argc, char* argv[])
 			PortfolioEntry entry = portfolioData.get(i);
 			cout << entry.name << "," << entry.cleanPrice << "\n";
 		}
+		YieldData yieldData;
+		YieldEntry* yield = yieldData.getByTerm(15);
+		if (yield)
+			cout << yield->aaa << "\n";
+		else
+			cout << "Term " << 15 << " does not exist";
 	}
 	catch (const exception &e)
 	{
