@@ -1,5 +1,7 @@
 // CreditMetrics.cpp : Defines the entry point for the console application.
-//
+// Note: The given .csv files are not formatted consistently. The .csv parsers below are 
+// designed to handle the inconsistencies present in the files in a somewhat 
+// general manner by removing extra characters and white space. 
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -23,21 +25,20 @@ static inline string& trim(string& s) {
 template <class R> class CSV
 {
 	public:
-		CSV(const string& filename, bool header)
+		CSV(const string& filename, size_t skipLines)
 		{
 			ifstream file(filename);
 			if (!file.good())
 			{
 				throw runtime_error("File does not exist");
 			}
-			bool skip = true;
 			while (!file.eof())
 			{
 				string strline;
 				getline(file, strline);
-				if (skip)
+				if (skipLines > 0)
 				{
-					skip = false;
+					skipLines--;
 					continue;
 				}
 				if (strline.empty())
@@ -82,7 +83,7 @@ class IssuerRating
 class Issuers : public CSV<IssuerRating>
 {
 	public:
-		Issuers() : CSV("issuers.csv", true) { }
+		Issuers() : CSV("issuers.csv", 1) { }
 		IssuerRating* getByName(string name)
 		{
 			for (size_t i = 0, n = size(); i < n; i++)
@@ -151,7 +152,7 @@ class PortfolioEntry
 class PortfolioData : public CSV<PortfolioEntry>
 {
 	public:
-		PortfolioData() : CSV("portfolio_for_project.csv", true) { }
+		PortfolioData() : CSV("portfolio_for_project.csv", 1) { }
 		PortfolioEntry* getByName(string name)
 		{
 			for (size_t i = 0, n = size(); i < n; i++)
@@ -177,7 +178,7 @@ int main(int argc, char* argv[])
 		for (size_t i = 0, n = portfolioData.size(); i < n; i++)
 		{
 			PortfolioEntry entry = portfolioData.get(i);
-			cout << entry.exprr << "," << entry.cleanPrice << "\n";
+			cout << entry.name << "," << entry.cleanPrice << "\n";
 		}
 	}
 	catch (const exception &e)
