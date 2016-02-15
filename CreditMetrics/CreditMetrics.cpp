@@ -73,7 +73,7 @@ class Issuers : public CSV<Issuer>
 		Issuers() : CSV("issuers.csv", true) { }
 		Issuer* getByName(string name)
 		{
-			for (int i = 0, n = size(); i < n; i++)
+			for (size_t i = 0, n = size(); i < n; i++)
 			{
 				Issuer& issuer = get(i);
 				if(issuer.name == name)
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		Issuers issuers;
-		for (int i = 0, n = issuers.size(); i < n; i++)
+		for (size_t i = 0, n = issuers.size(); i < n; i++)
 		{
 			Issuer issuer = issuers.get(i);
 			cout << issuer.name << "," << issuer.rating << "," << issuer.industry << "\n";
