@@ -38,7 +38,7 @@ static inline double convertPercent(string strPercent)
 	return convertDouble(strPercent) / 100;
 }
 
-template <class R> class CSV
+template <class R> class CSV : public vector<R>
 {
 public:
 	CSV(const string& filename, size_t skipLines)
@@ -76,20 +76,16 @@ public:
 			{
 				continue;
 			}
-			rows.push_back(R(cells));
+			push_back(R(cells));
 		}
 	}
-	size_t size() { return rows.size(); }
-	R& get(size_t i) { return rows[i]; }
 	const string toString()
 	{
 		string ret;
 		for (size_t i = 0, n = size(); i < n; i++)
-			ret = ret + get(i).toString() + "\n";
+			ret = ret + at(i).toString() + "\n";
 		return ret;
 	}
-private:
-	vector<R> rows;
 };
 class IssuerEntry
 {
@@ -116,7 +112,7 @@ public:
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			IssuerEntry& issuer = get(i);
+			IssuerEntry& issuer = at(i);
 			if(issuer.name == name)
 				return &issuer;
 		}
@@ -171,7 +167,7 @@ public:
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			PortfolioEntry& issuer = get(i);
+			PortfolioEntry& issuer = at(i);
 			if (issuer.name == name)
 				return &issuer;
 		}
@@ -211,7 +207,7 @@ public:
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			YieldEntry& yield = get(i);
+			YieldEntry& yield = at(i);
 			if (yield.term == term)
 				return &yield;
 		}
@@ -245,6 +241,31 @@ class TransitionData : public CSV<TransitionEntry>
 public:
 	TransitionData() : CSV("transition_matrix_for_project.csv", 3) {}
 };
+class MatrixRow : public vector<double>
+{
+public:
+	MatrixRow(const vector<string>& cells)
+	{
+		for (size_t i = 1, n = cells.size(); i < n; i++)
+		{
+			push_back(convertDouble(cells.at(i)));
+		}
+	}
+	string toString()
+	{
+		string ret;
+		for (size_t i = 0, n = size(); i < n; i++)
+		{
+			ret = ret + to_string(at(i)) + ",";
+		}
+		return ret;
+	}
+};
+class Matrix : public CSV<MatrixRow>
+{
+public:
+	Matrix() : CSV("correlation_matrix_for_project.csv", 1) {}
+};
 int main(int argc, char* argv[])
 {
 	try
@@ -257,6 +278,8 @@ int main(int argc, char* argv[])
 		cout << yieldData.toString();
 		TransitionData transitionData;
 		cout << transitionData.toString();
+		Matrix matrixIn;
+		cout << matrixIn.toString();
 	}
 	catch (const exception &e)
 	{
