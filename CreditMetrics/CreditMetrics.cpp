@@ -13,7 +13,9 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <random>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
 using namespace std;
 
 static inline string& trim(string& s) {
@@ -278,6 +280,10 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		random_device rd;
+		mt19937 gen(rd());
+		uniform_real_distribution<> dis(0, 1);
+
 		IssuerData issuerData;
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
@@ -290,8 +296,27 @@ int main(int argc, char* argv[])
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
 		// cout << transitionMatrix.toString();
-		cout << portfolioData.getReportedValue() << "\n";
-		cout << portfolioData.getTheorValue();
+		cout << portfolioData.getReportedValue() << endl;
+		cout << portfolioData.getTheorValue() << endl;
+
+		boost::numeric::ublas::matrix<double> m(portfolioData.size(), 8);
+		for (size_t i = 0, n1 = m.size1(); i < n1; i++)
+		{
+			PortfolioEntry& row = portfolioData.at(i);
+			// To do: clean this up?
+			if (row.instrumentType == "CDS")
+			{
+				for (size_t j = 0, n2 = m.size2() - 1; j < n2; j++)
+					m(i, j) = dis(gen);
+			}
+			else
+			{
+				for (size_t j = 0, n2 = m.size2() - 1; j < n2; j++)
+					m(i, j) = row.cleanPrice;
+			}
+			m(i, m.size2() - 1) = row.exprr * 100;
+		}
+		cout << m << endl;
 	}
 	catch (const exception &e)
 	{
