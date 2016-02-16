@@ -151,7 +151,7 @@ public:
 private:
 	int convertNotional(string strNotional)
 	{
-		return convertInt(strNotional) * 1000000;
+		return convertInt(strNotional);
 	}
 	double convertPrice(string strPrice)
 	{
@@ -172,6 +172,22 @@ public:
 				return &issuer;
 		}
 		return nullptr;
+	}
+	double getMarketValue()
+	{
+		double marketValue = 0;
+		for (size_t i = 0, n = size(); i < n; i++)
+		{
+			PortfolioEntry& row = at(i);
+			double targetValue;
+			if (row.instrumentType == "CDS")
+				targetValue = row.cleanPrice;
+			else
+				targetValue = row.price;
+			double prod = row.notional*targetValue/100;
+			marketValue = marketValue + prod;
+		}
+		return marketValue;
 	}
 };
 class YieldEntry
@@ -249,7 +265,7 @@ int main(int argc, char* argv[])
 		IssuerData issuerData;
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
-		// cout << portfolioData.toString();
+		cout << portfolioData.toString();
 		YieldData yieldData;
 		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
@@ -257,7 +273,8 @@ int main(int argc, char* argv[])
 		Matrix transitionMatrix("transition_matrix_for_project.csv", 3);
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
-		cout << transitionMatrix.toString();
+		// cout << transitionMatrix.toString();
+		cout << portfolioData.getMarketValue();
 	}
 	catch (const exception &e)
 	{
