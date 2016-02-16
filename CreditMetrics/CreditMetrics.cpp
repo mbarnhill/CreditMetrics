@@ -264,7 +264,7 @@ public:
 class Matrix : public CSV<MatrixRow>
 {
 public:
-	Matrix() : CSV("correlation_matrix_for_project.csv", 1) {}
+	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
 int main(int argc, char* argv[])
 {
@@ -278,8 +278,8 @@ int main(int argc, char* argv[])
 		cout << yieldData.toString();
 		TransitionData transitionData;
 		cout << transitionData.toString();
-		Matrix matrixIn;
-		cout << matrixIn.toString();
+		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
+		cout << correlationMatrix.toString();
 	}
 	catch (const exception &e)
 	{
