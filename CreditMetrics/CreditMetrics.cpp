@@ -1,7 +1,8 @@
-// CreditMetrics.cpp : Defines the entry point for the console application.
-// Note: The given .csv files are not formatted consistently. The .csv parsers below are 
-// designed to handle the inconsistencies present in the files in a somewhat 
-// general manner by removing extra characters and white space. 
+/*! CreditMetrics.cpp : Defines the entry point for the console application.
+	Note: The given .csv files are not formatted consistently. The .csv parsers below are 
+	designed to handle the inconsistencies present in the files in a somewhat 
+	general manner by removing extra characters and white space. 
+*/
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -173,7 +174,10 @@ public:
 		}
 		return nullptr;
 	}
-	double getMarketValue()
+	/*! Response for Part B, Step 2) Reported Value 
+		\return The reported value of the portfolio in millions of dollars
+	*/
+	double getReportedValue()
 	{
 		double marketValue = 0;
 		for (size_t i = 0, n = size(); i < n; i++)
@@ -184,10 +188,22 @@ public:
 				targetValue = row.cleanPrice;
 			else
 				targetValue = row.price;
-			double prod = row.notional*targetValue/100;
-			marketValue = marketValue + prod;
+			marketValue = marketValue + (row.notional*targetValue / 100);
 		}
 		return marketValue;
+	}
+	/*! Response for Part B, Step 2) Theoretical Value
+	\return The theoretical value of the portfolio in millions of dollars
+	*/
+	double getTheorValue()
+	{
+		double theorValue = 0;
+		for (size_t i = 0, n = size(); i < n; i++)
+		{
+			PortfolioEntry& row = at(i);
+			theorValue = theorValue + (row.notional*row.cleanPrice / 100);
+		}
+		return theorValue;
 	}
 };
 class YieldEntry
@@ -265,7 +281,7 @@ int main(int argc, char* argv[])
 		IssuerData issuerData;
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
-		cout << portfolioData.toString();
+		// cout << portfolioData.toString();
 		YieldData yieldData;
 		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
@@ -274,7 +290,8 @@ int main(int argc, char* argv[])
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
 		// cout << transitionMatrix.toString();
-		cout << portfolioData.getMarketValue();
+		cout << portfolioData.getReportedValue() << "\n";
+		cout << portfolioData.getTheorValue();
 	}
 	catch (const exception &e)
 	{
