@@ -214,33 +214,6 @@ public:
 		return nullptr;
 	}
 };
-class TransitionEntry
-{
-public:
-	TransitionEntry(const vector<string>& cells) :
-		aaa(convertPercent(cells.at(1))),
-		aa(convertPercent(cells.at(2))),
-		a(convertPercent(cells.at(3))),
-		bbb(convertPercent(cells.at(4))),
-		bb(convertPercent(cells.at(5))),
-		b(convertPercent(cells.at(6))),
-		ccc(convertPercent(cells.at(7))),
-		d(convertPercent(cells.at(8)))
-	{}
-	const double aaa, aa, a, bbb, bb, b, ccc, d;
-	const string toString() const
-	{
-		return string() 
-			+ to_string(aaa) + "," + to_string(aa) + ","
-			+ to_string(a) + "," + to_string(bbb) + "," 
-			+ to_string(bb) + "," + to_string(b) + "," + to_string(ccc) + "," + to_string(d);
-	}
-};
-class TransitionData : public CSV<TransitionEntry>
-{
-public:
-	TransitionData() : CSV("transition_matrix_for_project.csv", 3) {}
-};
 class MatrixRow : public vector<double>
 {
 public:
@@ -251,12 +224,15 @@ public:
 			push_back(convertDouble(cells.at(i)));
 		}
 	}
+	using vector::vector;
 	string toString()
 	{
 		string ret;
 		for (size_t i = 0, n = size(); i < n; i++)
 		{
-			ret = ret + to_string(at(i)) + ",";
+			if (i > 0)
+				ret = ret + ",";
+			ret = ret + to_string(at(i));
 		}
 		return ret;
 	}
@@ -271,15 +247,17 @@ int main(int argc, char* argv[])
 	try
 	{
 		IssuerData issuerData;
-		cout << issuerData.toString();
+		// cout << issuerData.toString();
 		PortfolioData portfolioData;
-		cout << portfolioData.toString();
+		// cout << portfolioData.toString();
 		YieldData yieldData;
-		cout << yieldData.toString();
-		TransitionData transitionData;
-		cout << transitionData.toString();
+		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
-		cout << correlationMatrix.toString();
+		// cout << correlationMatrix.toString();
+		Matrix transitionMatrix("transition_matrix_for_project.csv", 3);
+		MatrixRow row{ 0,0,0,0,0,0,0,1 };
+		transitionMatrix.push_back(row);
+		cout << transitionMatrix.toString();
 	}
 	catch (const exception &e)
 	{
