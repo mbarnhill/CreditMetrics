@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional> 
+#include <numeric>
 #include <cctype>
 #include <locale>
 #include <random>
@@ -375,7 +376,6 @@ int main(int argc, char* argv[])
 		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
 		{
 			PortfolioEntry& row = portfolioData.at(i);
-			// To do: clean this up?
 			if (row.instrumentType == "CDS")
 			{
 				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
@@ -396,25 +396,31 @@ int main(int argc, char* argv[])
 		vector<double> portfolioValues;
 		vector<double> changeInValues;
 		double changeInValueTotal = 0;
-		for (size_t i = 0, n = monteCarlo.scenarios.size(); i < n; i++)
+		for (size_t i = 0, n1 = monteCarlo.scenarios.size(); i < n1; i++)
 		{
 			double portfolioValue = 0;
 			Scenario& scenario = monteCarlo.scenarios.at(i);
-			for (size_t j = 0, m = portfolioData.size(); j < m; j++)
+			for (size_t j = 0, n2 = portfolioData.size(); j < n2; j++)
 			{
 				PortfolioEntry& portfolio = portfolioData.at(j);
 				ScenarioEntry* scenarioEntry = scenario.getByName(portfolio.name);
 				if (!scenarioEntry)
 					throw runtime_error("No known scenario entry for \"" + portfolio.name + "\"");
-				portfolioValue = portfolioValue + ((priceMatrix(j, scenarioEntry->rating)*portfolio.notional) * ((double) 1 / 100));
+				portfolioValue = portfolioValue + ((priceMatrix(j, scenarioEntry->rating)*portfolio.notional) * ((double)1/100));
 			}
 			portfolioValues.push_back(portfolioValue);
 			double changeInValue = portfolioValue - portfolioData.getTheorValue();
 			changeInValues.push_back(changeInValue);
 			changeInValueTotal = changeInValueTotal + changeInValue;
 		}
-		double avgChangeInValue = changeInValueTotal / (double) changeInValues.size();
 
+		double meanChangeInValue = changeInValueTotal / (double)changeInValues.size();
+		double sq_sum = inner_product(changeInValues.begin(), changeInValues.end(), changeInValues.begin(), 0.0);
+		double stdev = sqrt((sq_sum / (double)changeInValues.size()) - (meanChangeInValue * meanChangeInValue));
+
+		cout << changeInValues[0] << endl;
+		cout << meanChangeInValue << endl;
+		cout << stdev << endl;
 	}
 	catch (const exception &e)
 	{
