@@ -14,6 +14,7 @@
 #include <cctype>
 #include <locale>
 #include <random>
+#include <boost/algorithm/string.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 using namespace std;
@@ -39,6 +40,12 @@ static inline double convertPercent(string strPercent)
 {
 	replace(strPercent.begin(), strPercent.end(), '%', ' ');
 	return convertDouble(strPercent) / 100;
+}
+static inline string sanitizeString(string str)
+{
+	boost::to_upper(str);
+	trim(str);
+	return str;
 }
 
 template <class R> class CSV : public vector<R>
@@ -94,9 +101,9 @@ class IssuerEntry
 {
 public: 
 	IssuerEntry(const vector<string>& cells):
-		name(cells.at(0)),
-		rating(cells.at(1)),
-		industry(cells.at(2))
+		name(sanitizeString(cells.at(0))),
+		rating(sanitizeString(cells.at(1))),
+		industry(sanitizeString(cells.at(2)))
 	{}
 	const string name;
 	const string rating;
@@ -126,8 +133,8 @@ class PortfolioEntry
 {
 public:
 	PortfolioEntry(const vector<string>& cells) :
-		name(cells.at(0)),
-		instrumentType(cells.at(1)),
+		name(sanitizeString(cells.at(0))),
+		instrumentType(sanitizeString(cells.at(1))),
 		cusip(cells.at(2)),
 		notional(convertNotional(cells.at(3))),
 		maturity(cells.at(4)),
@@ -276,6 +283,18 @@ class Matrix : public CSV<MatrixRow>
 public:
 	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
+class Scenario
+{
+public:
+	const string boobs;
+};
+class CompanyScenarios
+{
+public:
+	vector<Scenario> scenarios;
+	const string name;
+};
+
 int main(int argc, char* argv[])
 {
 	try
@@ -285,9 +304,9 @@ int main(int argc, char* argv[])
 		uniform_real_distribution<> dis(0, 1);
 
 		IssuerData issuerData;
-		// cout << issuerData.toString();
+		cout << issuerData.toString();
 		PortfolioData portfolioData;
-		// cout << portfolioData.toString();
+		cout << portfolioData.toString();
 		YieldData yieldData;
 		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
@@ -296,8 +315,8 @@ int main(int argc, char* argv[])
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
 		// cout << transitionMatrix.toString();
-		cout << portfolioData.getReportedValue() << endl;
-		cout << portfolioData.getTheorValue() << endl;
+		// cout << portfolioData.getReportedValue() << endl;
+		// cout << portfolioData.getTheorValue() << endl;
 
 		boost::numeric::ublas::matrix<double> m(portfolioData.size(), 8);
 		for (size_t i = 0, n1 = m.size1(); i < n1; i++)
@@ -316,7 +335,7 @@ int main(int argc, char* argv[])
 			}
 			m(i, m.size2() - 1) = row.exprr * 100;
 		}
-		cout << m << endl;
+		// cout << m << endl;
 	}
 	catch (const exception &e)
 	{
