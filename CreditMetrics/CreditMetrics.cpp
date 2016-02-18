@@ -283,16 +283,38 @@ class Matrix : public CSV<MatrixRow>
 public:
 	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
+class ScenarioEntry
+{
+public:
+	ScenarioEntry(IssuerEntry& entry) :
+		name(entry.name),
+		rating(entry.rating) {}
+	const string name, rating;
+};
 class Scenario
 {
 public:
-	const string boobs;
+	Scenario(IssuerData& data)
+	{
+		for (size_t i = 0, n = data.size(); i < n; i++)
+		{
+			IssuerEntry& entry = data.at(i);
+			entries.push_back(ScenarioEntry(entry));
+		}
+	}
+	vector<ScenarioEntry> entries;
 };
-class CompanyScenarios
+class  Monte
 {
 public:
+	Monte(int N, IssuerData& issuerData) 
+	{
+		for (size_t i = 0; i < N; i++)
+		{
+			scenarios.push_back(Scenario(issuerData));
+		}
+	}
 	vector<Scenario> scenarios;
-	const string name;
 };
 
 int main(int argc, char* argv[])
@@ -304,9 +326,9 @@ int main(int argc, char* argv[])
 		uniform_real_distribution<> dis(0, 1);
 
 		IssuerData issuerData;
-		cout << issuerData.toString();
+		// cout << issuerData.toString();
 		PortfolioData portfolioData;
-		cout << portfolioData.toString();
+		// cout << portfolioData.toString();
 		YieldData yieldData;
 		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
@@ -336,6 +358,9 @@ int main(int argc, char* argv[])
 			m(i, m.size2() - 1) = row.exprr * 100;
 		}
 		// cout << m << endl;
+
+		Monte monteCarlo(2000, issuerData);
+		cout << monteCarlo.scenarios[0].entries[0].name << "," << monteCarlo.scenarios[0].entries[0].rating << endl;
 	}
 	catch (const exception &e)
 	{
