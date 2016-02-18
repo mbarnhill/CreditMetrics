@@ -369,8 +369,8 @@ int main(int argc, char* argv[])
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
 		// cout << transitionMatrix.toString();
-		// cout << portfolioData.getReportedValue() << endl;
-		// cout << portfolioData.getTheorValue() << endl;
+		cout << "The initial reported portfolio value is " << portfolioData.getReportedValue() << endl;
+		cout << "The initial theoretical portfolio value is " << portfolioData.getTheorValue() << endl;
 
 		boost::numeric::ublas::matrix<double> priceMatrix(portfolioData.size(), 8);
 		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
@@ -418,9 +418,27 @@ int main(int argc, char* argv[])
 		double sq_sum = inner_product(changeInValues.begin(), changeInValues.end(), changeInValues.begin(), 0.0);
 		double stdev = sqrt((sq_sum / (double)changeInValues.size()) - (meanChangeInValue * meanChangeInValue));
 
-		cout << changeInValues[0] << endl;
-		cout << meanChangeInValue << endl;
-		cout << stdev << endl;
+		//cout << changeInValues[0] << endl;
+		cout << "The average change in value is " << meanChangeInValue << endl;
+		cout << "The standard deviations of the change in value is " << stdev << endl;
+
+		sort(changeInValues.begin(), changeInValues.end());
+		double var95Percentile = changeInValues.at((int) (changeInValues.size()*0.05));
+		double var99Percentile = changeInValues.at((int) (changeInValues.size()*0.01));
+
+		double percentile = 98;
+		double cvar = 0;
+		for (size_t i = 0, n1 = (int)(((100-percentile)*0.01)*changeInValues.size()); i < n1; i++)
+		{
+			cvar = cvar + changeInValues.at(i);
+		}
+		double cvarPercentile = cvar / (double)(((100 - percentile)*0.01)*changeInValues.size());
+	
+		cout << "VaR at the 95th percentile is " << var95Percentile << endl;
+		cout << "VaR at the 99th percentile is " << var99Percentile << endl;
+		cout << "VaR at the desired percentile is " << cvarPercentile << endl;
+
+
 	}
 	catch (const exception &e)
 	{
