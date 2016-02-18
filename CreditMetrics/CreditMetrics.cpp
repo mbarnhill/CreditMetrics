@@ -49,6 +49,9 @@ static inline string sanitizeString(string str)
 	return str;
 }
 
+/*! Response for Part B, Step 1) 
+\Read in all the .csv files and create transition and correlation matrices.
+*/
 template <class R> class CSV : public vector<R>
 {
 public:
@@ -284,6 +287,11 @@ class Matrix : public CSV<MatrixRow>
 public:
 	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
+
+/*! Response for Part B, Step 4)
+\Return a N scenarios for possible ratings for the companies at the end of the year.
+\For now we let all scenarios be the same rating the companies started with.
+*/
 class ScenarioEntry
 {
 public:
@@ -357,6 +365,9 @@ int main(int argc, char* argv[])
 		mt19937 gen(rd());
 		uniform_real_distribution<> dis(0, 1);
 
+		/*! Returning all data from step 1.
+		\See below to read out all of the data from Step 1.
+		*/
 		IssuerData issuerData;
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
@@ -371,6 +382,14 @@ int main(int argc, char* argv[])
 		// cout << transitionMatrix.toString();
 		cout << "The initial reported portfolio value is " << portfolioData.getReportedValue() << endl;
 		cout << "The initial theoretical portfolio value is " << portfolioData.getTheorValue() << endl;
+
+		/*! Response for Part B, Step 3) 
+		\Return a matrix of possible prices for each instrument for each possible credit rating.
+		\For the moment, we designate each performing bond price to be the theoretical price from above, 
+		\and each performing CDS to be a random number between 0 and 1 (on a notional of $100).
+		\Defaulted bonds and CDSs are designated as the expected recovery values.
+		\ NOTE: requires the boost library.
+		*/
 
 		boost::numeric::ublas::matrix<double> priceMatrix(portfolioData.size(), 8);
 		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
@@ -390,9 +409,13 @@ int main(int argc, char* argv[])
 		}
 		//cout << priceMatrix << endl;
 
+		/*! Response for Part B, Step 5)
+		\Set N and go through the N scenarios and compute the value of the portfolio, 
+		\and change in value of the portfolio in each scenario.
+		*/
 		int N = 2000;
 		Monte monteCarlo(N, issuerData);
-		
+	
 		vector<double> portfolioValues;
 		vector<double> changeInValues;
 		double changeInValueTotal = 0;
@@ -414,8 +437,13 @@ int main(int argc, char* argv[])
 			changeInValueTotal = changeInValueTotal + changeInValue;
 		}
 
+		/*! Response for Part B, Step 6)
+		\Calculate statistics for the change in portfolio value
+		*/
 		double meanChangeInValue = changeInValueTotal / (double)changeInValues.size();
 		double sq_sum = inner_product(changeInValues.begin(), changeInValues.end(), changeInValues.begin(), 0.0);
+		//NOTE: This calculation of standard deviation may not work for small values. 
+		//TO DO: Fix this so a standard deviation of 0 does not cause an overflow.
 		double stdev = sqrt((sq_sum / (double)changeInValues.size()) - (meanChangeInValue * meanChangeInValue));
 
 		//cout << changeInValues[0] << endl;
