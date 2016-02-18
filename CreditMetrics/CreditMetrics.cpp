@@ -288,23 +288,55 @@ class ScenarioEntry
 public:
 	ScenarioEntry(IssuerEntry& entry) :
 		name(entry.name),
-		rating(entry.rating) {}
-	const string name, rating;
+		rating(convertRating(entry.rating))
+	{}
+	const string name;
+	const int rating;
+	const int convertRating(string rating) const
+	{
+		int convertedRating;
+		if (rating == "AAA")
+			convertedRating = 0;
+		else if (rating == "AA")
+			convertedRating = 1;
+		else if (rating == "A")
+			convertedRating = 2;
+		else if (rating == "BBB")
+			convertedRating = 3;
+		else if (rating == "BB")
+			convertedRating = 4;
+		else if (rating == "B")
+			convertedRating = 5;
+		else if (rating == "CCC")
+			convertedRating = 6;
+		else if (rating == "C")
+			convertedRating = 6;
+		else if (rating == "D")
+			convertedRating = 7;
+		return convertedRating;
+	}
 };
-class Scenario
+class Scenario : public vector<ScenarioEntry>
 {
 public:
 	Scenario(IssuerData& data)
 	{
 		for (size_t i = 0, n = data.size(); i < n; i++)
-		{
-			IssuerEntry& entry = data.at(i);
-			entries.push_back(ScenarioEntry(entry));
-		}
+			push_back(ScenarioEntry(data.at(i)));
 	}
 	vector<ScenarioEntry> entries;
+	ScenarioEntry* getByName(string name)
+	{
+		for (size_t i = 0, n = size(); i < n; i++)
+		{
+			ScenarioEntry& entry = at(i);
+			if (entry.name == name)
+				return &entry;
+		}
+		return nullptr;
+	}
 };
-class  Monte
+class Monte
 {
 public:
 	Monte(int N, IssuerData& issuerData) 
@@ -316,7 +348,6 @@ public:
 	}
 	vector<Scenario> scenarios;
 };
-
 int main(int argc, char* argv[])
 {
 	try
@@ -340,27 +371,46 @@ int main(int argc, char* argv[])
 		// cout << portfolioData.getReportedValue() << endl;
 		// cout << portfolioData.getTheorValue() << endl;
 
-		boost::numeric::ublas::matrix<double> m(portfolioData.size(), 8);
-		for (size_t i = 0, n1 = m.size1(); i < n1; i++)
+		boost::numeric::ublas::matrix<double> priceMatrix(portfolioData.size(), 8);
+		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
 		{
 			PortfolioEntry& row = portfolioData.at(i);
 			// To do: clean this up?
 			if (row.instrumentType == "CDS")
 			{
-				for (size_t j = 0, n2 = m.size2() - 1; j < n2; j++)
-					m(i, j) = dis(gen);
+				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
+					priceMatrix(i, j) = dis(gen);
 			}
 			else
 			{
-				for (size_t j = 0, n2 = m.size2() - 1; j < n2; j++)
-					m(i, j) = row.cleanPrice;
+				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
+					priceMatrix(i, j) = row.cleanPrice;
 			}
-			m(i, m.size2() - 1) = row.exprr * 100;
+			priceMatrix(i, priceMatrix.size2() - 1) = row.exprr * 100;
 		}
-		// cout << m << endl;
+		cout << priceMatrix << endl;
 
-		Monte monteCarlo(2000, issuerData);
-		cout << monteCarlo.scenarios[0].entries[0].name << "," << monteCarlo.scenarios[0].entries[0].rating << endl;
+		int N = 2000;
+		Monte monteCarlo(N, issuerData);
+		
+		vector<double> portfolioValues;
+		vector<double> changeInValues;
+		for (size_t i = 0, n = monteCarlo.scenarios.size(); i < n; i++)
+		{
+			double portfolioValue = 0;
+			Scenario& scenario = monteCarlo.scenarios.at(i);
+			for (size_t j = 0, m = portfolioData.size(); j < m; j++)
+			{
+				PortfolioEntry& portfolio = portfolioData.at(j);
+				ScenarioEntry* scenarioEntry = scenario.getByName(portfolio.name);
+				if (!scenarioEntry)
+					throw runtime_error("No known scenario entry for \"" + portfolio.name + "\"");
+				portfolioValue = portfolioValue + ((priceMatrix(j, scenarioEntry->rating)*portfolio.notional) * ((double) 1 / 100));
+			}
+			portfolioValues.push_back(portfolioValue);
+			changeInValues.push_back(portfolioValue - portfolioData.getTheorValue());
+		}
+
 	}
 	catch (const exception &e)
 	{
