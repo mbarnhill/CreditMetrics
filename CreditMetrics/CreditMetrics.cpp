@@ -388,13 +388,14 @@ int main(int argc, char* argv[])
 			}
 			priceMatrix(i, priceMatrix.size2() - 1) = row.exprr * 100;
 		}
-		cout << priceMatrix << endl;
+		//cout << priceMatrix << endl;
 
 		int N = 2000;
 		Monte monteCarlo(N, issuerData);
 		
 		vector<double> portfolioValues;
 		vector<double> changeInValues;
+		double changeInValueTotal = 0;
 		for (size_t i = 0, n = monteCarlo.scenarios.size(); i < n; i++)
 		{
 			double portfolioValue = 0;
@@ -408,8 +409,11 @@ int main(int argc, char* argv[])
 				portfolioValue = portfolioValue + ((priceMatrix(j, scenarioEntry->rating)*portfolio.notional) * ((double) 1 / 100));
 			}
 			portfolioValues.push_back(portfolioValue);
-			changeInValues.push_back(portfolioValue - portfolioData.getTheorValue());
+			double changeInValue = portfolioValue - portfolioData.getTheorValue();
+			changeInValues.push_back(changeInValue);
+			changeInValueTotal = changeInValueTotal + changeInValue;
 		}
+		double avgChangeInValue = changeInValueTotal / (double) changeInValues.size();
 
 	}
 	catch (const exception &e)
