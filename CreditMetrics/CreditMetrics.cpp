@@ -1,7 +1,9 @@
 /*! CreditMetrics.cpp : Defines the entry point for the console application.
 	Note: The given .csv files are not formatted consistently. The .csv parsers below are 
 	designed to handle the inconsistencies present in the files in a somewhat 
-	general manner by removing extra characters and white space. 
+	general manner by removing extra characters and white space.
+	Note: Some of the values in the csv file are set to "-", which is read as zero by c++, 
+	so we do not account for this particular inconsistency, as we intend that any of these to be zero regardless.
 */
 #include "stdafx.h"
 #include <iostream>
