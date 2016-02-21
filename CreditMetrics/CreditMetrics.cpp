@@ -51,6 +51,7 @@ static inline string sanitizeString(string str)
 
 /*! Response for Part B, Step 1) 
 \Read in all the .csv files and create transition and correlation matrices.
+\Generically stores rows from a .csv file. Conents of each row are passed as a vector of strings to the row class.
 */
 template <class R> class CSV : public vector<R>
 {
@@ -101,6 +102,9 @@ public:
 		return ret;
 	}
 };
+/*! IssuerEntry
+\Labels the cells of the issuers data
+*/
 class IssuerEntry
 {
 public: 
@@ -118,6 +122,9 @@ public:
 			+ name + "," + rating + "," + industry;
 	}
 };
+/*! IssuerData
+\Gets and returns an issuer by the company name
+*/
 class IssuerData : public CSV<IssuerEntry>
 {
 public:
@@ -133,6 +140,9 @@ public:
 		return nullptr;
 	}
 };
+/*! PortfolioEntry
+\Labels the cells of the portfolio data
+*/
 class PortfolioEntry
 {
 public:
@@ -173,6 +183,9 @@ private:
 		return convertDouble(strPrice);
 	}
 };
+/*! PortfolioData, Includes response for Part B, Step 2)
+\Gets and returns a portfolio entry by the company name
+*/
 class PortfolioData : public CSV<PortfolioEntry>
 {
 public:
@@ -219,6 +232,9 @@ public:
 		return theorValue;
 	}
 };
+/*! YieldEntry
+\Labels the cells of the yield curve data
+*/
 class YieldEntry
 {
 public:
@@ -244,6 +260,9 @@ public:
 			+ to_string(govt);
 	}
 };
+/*! YieldData
+\Gets and returns a row of yield values by the term
+*/
 class YieldData : public CSV<YieldEntry>
 {
 public:
@@ -259,6 +278,9 @@ public:
 		return nullptr;
 	}
 };
+/*! MatrixRow
+\Stores an array of doubles
+*/
 class MatrixRow : public vector<double>
 {
 public:
@@ -282,14 +304,17 @@ public:
 		return ret;
 	}
 };
+/*! Matrix
+\Stores an array of matrix rows (vector of vectors of doubles)
+*/
 class Matrix : public CSV<MatrixRow>
 {
 public:
 	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
 
-/*! Response for Part B, Step 4)
-\Return a N scenarios for possible ratings for the companies at the end of the year.
+/*! ScenarioEntry and Scenario: Response for Part B, Step 4)
+\Return scenarios for possible ratings for the companies at the end of the year.
 \For now we let all scenarios be the same rating the companies started with.
 */
 class ScenarioEntry
@@ -325,6 +350,7 @@ public:
 		return convertedRating;
 	}
 };
+
 class Scenario : public vector<ScenarioEntry>
 {
 public:
@@ -345,6 +371,9 @@ public:
 		return nullptr;
 	}
 };
+/*! Monta: Response for Part B, Step 4) (Continued)
+\Return a N scenarios
+*/
 class Monte
 {
 public:
@@ -357,6 +386,7 @@ public:
 	}
 	vector<Scenario> scenarios;
 };
+
 int main(int argc, char* argv[])
 {
 	try
