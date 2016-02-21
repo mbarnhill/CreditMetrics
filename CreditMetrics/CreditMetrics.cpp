@@ -22,7 +22,8 @@
 #include <boost/numeric/ublas/io.hpp>
 using namespace std;
 
-static inline string& trim(string& s) {
+static inline string& trim(string& s)
+{
 	//left
 	s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
 	//right
@@ -51,9 +52,8 @@ static inline string sanitizeString(string str)
 	return str;
 }
 
-/*! Response for Part B, Step 1) 
-\Read in all the .csv files and create transition and correlation matrices.
-\Generically stores rows from a .csv file. Conents of each row are passed as a vector of strings to the row class.
+/*! CSV
+Generically stores rows from a .csv file. Conents of each row are passed as a vector of strings to the row class.
 */
 template <class R> class CSV : public vector<R>
 {
@@ -105,7 +105,7 @@ public:
 	}
 };
 /*! IssuerEntry
-\Labels the cells of the issuers data
+Labels the cells of the issuers data
 */
 class IssuerEntry
 {
@@ -125,12 +125,16 @@ public:
 	}
 };
 /*! IssuerData
-\Gets and returns an issuer by the company name
+Holds the rows of issuer entries read from the issuers .csv file
 */
 class IssuerData : public CSV<IssuerEntry>
 {
 public:
 	IssuerData() : CSV("issuers.csv", 1) { }
+	/*!
+	\param name a company name
+	\return row containing information about the company. Nullptr if not found.
+	*/
 	IssuerEntry* getByName(string name)
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
@@ -143,7 +147,7 @@ public:
 	}
 };
 /*! PortfolioEntry
-\Labels the cells of the portfolio data
+Labels the cells of the portfolio data
 */
 class PortfolioEntry
 {
@@ -185,13 +189,17 @@ private:
 		return convertDouble(strPrice);
 	}
 };
-/*! PortfolioData, Includes response for Part B, Step 2)
-\Gets and returns a portfolio entry by the company name
+/*! PortfolioData
+Holds the rows of portfolio entries read from the portfolio .csv file
 */
 class PortfolioData : public CSV<PortfolioEntry>
 {
 public:
 	PortfolioData() : CSV("portfolio_for_project.csv", 1) { }
+	/*!
+	\param name a company name
+	\return row containing portfolio information about the company. Nullptr if not found.
+	*/
 	PortfolioEntry* getByName(string name)
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
@@ -202,8 +210,8 @@ public:
 		}
 		return nullptr;
 	}
-	/*! Response for Part B, Step 2) Reported Value 
-		\return The reported value of the portfolio in millions of dollars
+	/*! 
+	\return The reported value of the portfolio in millions of dollars
 	*/
 	double getReportedValue()
 	{
@@ -220,7 +228,7 @@ public:
 		}
 		return marketValue;
 	}
-	/*! Response for Part B, Step 2) Theoretical Value
+	/*! 
 	\return The theoretical value of the portfolio in millions of dollars
 	*/
 	double getTheorValue()
@@ -235,7 +243,7 @@ public:
 	}
 };
 /*! YieldEntry
-\Labels the cells of the yield curve data
+Labels the cells of the yield curve data
 */
 class YieldEntry
 {
@@ -263,7 +271,7 @@ public:
 	}
 };
 /*! YieldData
-\Gets and returns a row of yield values by the term
+Holds the rows of yield values read from the yield curve .csv file
 */
 class YieldData : public CSV<YieldEntry>
 {
@@ -281,7 +289,7 @@ public:
 	}
 };
 /*! MatrixRow
-\Stores an array of doubles
+Stores an array of doubles, representing a row in a matrix
 */
 class MatrixRow : public vector<double>
 {
@@ -307,7 +315,7 @@ public:
 	}
 };
 /*! Matrix
-\Stores an array of matrix rows (vector of vectors of doubles)
+Stores an array of matrix rows (vector of vectors of doubles), representing a full matrix
 */
 class Matrix : public CSV<MatrixRow>
 {
@@ -315,9 +323,10 @@ public:
 	Matrix(const string& filename, size_t skipLines) : CSV(filename, skipLines) {}
 };
 
-/*! ScenarioEntry and Scenario: Response for Part B, Step 4)
-\Return scenarios for possible ratings for the companies at the end of the year.
-\For now we let all scenarios be the same rating the companies started with.
+/*! ScenarioEntry
+Create a scenario for a company at the end of the year.
+Converts rating to integer values.
+For now we let all scenarios be the same rating the companies started with.
 */
 class ScenarioEntry
 {
@@ -352,7 +361,9 @@ public:
 		return convertedRating;
 	}
 };
-
+/*! Scenario
+Create a set scenarios, one for each company, at the end of the year.
+*/
 class Scenario : public vector<ScenarioEntry>
 {
 public:
@@ -362,6 +373,10 @@ public:
 			push_back(ScenarioEntry(data.at(i)));
 	}
 	vector<ScenarioEntry> entries;
+	/*! 
+	\param name the company name
+	\return The scenario for the given company name. Nullptr if none are found.
+	*/
 	ScenarioEntry* getByName(string name)
 	{
 		for (size_t i = 0, n = size(); i < n; i++)
@@ -373,8 +388,8 @@ public:
 		return nullptr;
 	}
 };
-/*! Monta: Response for Part B, Step 4) (Continued)
-\Return a N scenarios
+/*! Monte
+Performs a Monte Carlo simulation by creating a vector of N scenarios 
 */
 class Monte
 {
@@ -393,13 +408,13 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		// Sets up random number generator
 		random_device rd;
 		mt19937 gen(rd());
 		uniform_real_distribution<> dis(0, 1);
 
-		/*! Returning all data from step 1.
-		\See below to read out all of the data from Step 1.
-		*/
+		// Response for Part B, Step 1) 
+		// Read in all the .csv files and create transition and correlation matrices.
 		IssuerData issuerData;
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
@@ -409,20 +424,24 @@ int main(int argc, char* argv[])
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
 		// cout << correlationMatrix.toString();
 		Matrix transitionMatrix("transition_matrix_for_project.csv", 3);
+		
+		// Add an additional matrix row to represent defaulted companies.
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
 		// cout << transitionMatrix.toString();
+
+		// Response for Part B, Step 2)
+		// Get reported and theoretical portfolio values.
 		cout << "The initial reported portfolio value is " << portfolioData.getReportedValue() << endl;
 		cout << "The initial theoretical portfolio value is " << portfolioData.getTheorValue() << endl;
 
-		/*! Response for Part B, Step 3) 
-		\Return a matrix of possible prices for each instrument for each possible credit rating.
-		\For the moment, we designate each performing bond price to be the theoretical price from above, 
-		\and each performing CDS to be a random number between 0 and 1 (on a notional of $100).
-		\Defaulted bonds and CDSs are designated as the expected recovery values.
-		\ NOTE: requires the boost library.
+		/* Response for Part B, Step 3) 
+		Return a matrix of possible prices for each instrument for each possible credit rating.
+		For the moment, we designate each performing bond price to be the theoretical price from above, 
+		and each performing CDS to be a random number between 0 and 1 (on a notional of $100).
+		Defaulted bonds and CDSs are designated as the expected recovery values.
+		NOTE: requires the boost library.
 		*/
-
 		boost::numeric::ublas::matrix<double> priceMatrix(portfolioData.size(), 8);
 		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
 		{
@@ -441,13 +460,14 @@ int main(int argc, char* argv[])
 		}
 		//cout << priceMatrix << endl;
 
-		/*! Response for Part B, Step 5)
-		\Set N and go through the N scenarios and compute the value of the portfolio, 
-		\and change in value of the portfolio in each scenario.
-		*/
+		// Response for Part B, Step 4)
+		// Set N generate N scenarios for the ratings of the companies.
 		int N = 2000;
 		Monte monteCarlo(N, issuerData);
 	
+		// Response for Part B, Step 5)
+		// Go through the N scenarios and compute the value of the portfolio,
+		// and change in value of the portfolio in each scenario.
 		vector<double> portfolioValues;
 		vector<double> changeInValues;
 		double changeInValueTotal = 0;
@@ -469,22 +489,25 @@ int main(int argc, char* argv[])
 			changeInValueTotal = changeInValueTotal + changeInValue;
 		}
 
-		/*! Response for Part B, Step 6)
-		\Calculate statistics for the change in portfolio value
-		*/
+		// Response for Part B, Step 6)
+		// Calculate statistics for the change in portfolio value
 		double meanChangeInValue = changeInValueTotal / (double)changeInValues.size();
 		double sq_sum = inner_product(changeInValues.begin(), changeInValues.end(), changeInValues.begin(), 0.0);
-		//NOTE: This calculation of standard deviation may not work for small values. 
-		//TO DO: Fix this so a standard deviation of 0 does not cause an overflow.
+		// NOTE: This calculation of standard deviation may not work for small values. 
+		// TO DO: Fix this so a standard deviation of 0 does not cause an overflow.
 		double stdev = sqrt((sq_sum / (double)changeInValues.size()) - (meanChangeInValue * meanChangeInValue));
+		// QuickFix: Set stdev to zero if stdev is +/-NaN, due to above issue.
+		if (stdev != stdev)
+			stdev = 0;
 
-		//cout << changeInValues[0] << endl;
 		cout << "The average change in value is " << meanChangeInValue << endl;
 		cout << "The standard deviations of the change in value is " << stdev << endl;
 
 		sort(changeInValues.begin(), changeInValues.end());
 		double var95Percentile = changeInValues.at((int) (changeInValues.size()*0.05));
 		double var99Percentile = changeInValues.at((int) (changeInValues.size()*0.01));
+		// Using (int) will ensure that the index is an integer. It performs a 'floor' operation by 
+		// removing the decimal part of changeInValues.size()*alpha, which is what is needed for VaR calculations. 
 
 		double percentile = 98;
 		double cvar = 0;
@@ -496,13 +519,13 @@ int main(int argc, char* argv[])
 	
 		cout << "VaR at the 95th percentile is " << var95Percentile << endl;
 		cout << "VaR at the 99th percentile is " << var99Percentile << endl;
-		cout << "VaR at the desired percentile is " << cvarPercentile << endl;
-
-
+		cout << "CVaR at the desired percentile is " << cvarPercentile << endl;
 	}
+	// Print all exceptions to stderr
 	catch (const exception &e)
 	{
 		cerr << "error: " << e.what() << "\n";
 	}
+	cout << "Hit enter to exit" << endl;
 	getchar();
 }
