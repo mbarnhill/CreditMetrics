@@ -5,7 +5,6 @@
 	Note: Some of the values in the csv file are set to "-", which is read as zero by c++, 
 	so we do not account for this particular inconsistency, as we intend that any of these to be zero regardless.
 */
-#include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -20,90 +19,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+
+#include "csv.h"
 using namespace std;
 
-static inline string& trim(string& s)
-{
-	//left
-	s.erase(s.begin(), find_if(s.begin(), s.end(), not1(ptr_fun<int, int>(isspace))));
-	//right
-	s.erase(find_if(s.rbegin(), s.rend(), not1(ptr_fun<int, int>(isspace))).base(), s.end());
-	return s;
-}
-static inline int convertInt(string strInt)
-{
-	trim(strInt);
-	return ::atoi(strInt.c_str());
-}
-static inline double convertDouble(string strDouble)
-{
-	trim(strDouble);
-	return ::atof(strDouble.c_str());
-}
-static inline double convertPercent(string strPercent)
-{
-	replace(strPercent.begin(), strPercent.end(), '%', ' ');
-	return convertDouble(strPercent) / 100;
-}
-static inline string sanitizeString(string str)
-{
-	boost::to_upper(str);
-	trim(str);
-	return str;
-}
-
-/*! CSV
-Generically stores rows from a .csv file. Conents of each row are passed as a vector of strings to the row class.
-*/
-template <class R> class CSV : public vector<R>
-{
-public:
-	CSV(const string& filename, size_t skipLines)
-	{
-		ifstream file(filename);
-		if (!file.good())
-		{
-			throw runtime_error("File does not exist");
-		}
-		while (!file.eof())
-		{
-			string strline;
-			getline(file, strline);
-			if (skipLines > 0)
-			{
-				skipLines--;
-				continue;
-			}
-			if (strline.empty())
-			{
-				continue;
-			}
-			stringstream streamline(strline);
-			vector<string> cells;
-			while (!streamline.eof())
-			{
-				string cell;
-				getline(streamline, cell, ',');
-				if (cell != "")
-				{
-					cells.push_back(cell);
-				}
-			}
-			if (cells.empty())
-			{
-				continue;
-			}
-			push_back(R(cells));
-		}
-	}
-	const string toString()
-	{
-		string ret;
-		for (size_t i = 0, n = size(); i < n; i++)
-			ret = ret + at(i).toString() + "\n";
-		return ret;
-	}
-};
 /*! IssuerEntry
 Labels the cells of the issuers data
 */
@@ -130,7 +49,7 @@ Holds the rows of issuer entries read from the issuers .csv file
 class IssuerData : public CSV<IssuerEntry>
 {
 public:
-	IssuerData() : CSV("issuers.csv", 1) { }
+	IssuerData() : CSV("issuers_old.csv", 1) { }
 	/*!
 	\param name a company name
 	\return row containing information about the company. Nullptr if not found.
