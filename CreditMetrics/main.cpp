@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
-		int N = 2000;
+		int N = 1;
 		Monte monteCarlo(N, NormalRandomNumberGenerator(0, 1), issuerData, industryData);
 	
 		// Response for Part B, Step 5)

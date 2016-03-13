@@ -1,12 +1,46 @@
 #include "scenario.h"
 #include <iostream>
-ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryEntry& industryEntry) :
-	name(issuerEntry.name),
-	rating(calculateRating(randGen, convertRating(issuerEntry.rating), issuerEntry.correl, industryEntry.correl))
-{}
-const int ScenarioEntry::calculateRating(NormalRandomNumberGenerator& randGen, int rating, double issuerCorrel, double industryCorrel)
+#include <math.h>
+
+double IndustryScenario::calcIndustryDraw(NormalRandomNumberGenerator& randGen, IndustryEntry& industryEntry)
 {
-	return 0;
+	double random1 = randGen.rand();
+	double random2 = randGen.rand();
+	return (industryEntry.correl * random1) + (sqrt(1 - (industryEntry.correl*industryEntry.correl)) * random2);
+}
+IndustryScenario::IndustryScenario(NormalRandomNumberGenerator& randGen, IndustryEntry& industryEntry) :
+	industry(industryEntry.industry),
+	industryDraw(calcIndustryDraw(randGen, industryEntry))
+{}
+IndustryScenarioData::IndustryScenarioData(NormalRandomNumberGenerator& randGen, IndustryData& industryData)
+{
+	for (size_t i = 0, n = industryData.size(); i < n; i++)
+	{
+		IndustryEntry& entry = industryData[i];
+		push_back(IndustryScenario(randGen, entry));
+	}
+}
+IndustryScenario* IndustryScenarioData::getByName(string industry)
+{
+	for (size_t i = 0, n = size(); i < n; i++)
+	{
+		IndustryScenario& entry = at(i);
+		if (entry.industry == industry)
+			return &entry;
+	}
+	return nullptr;
+}
+ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario) :
+	name(issuerEntry.name),
+	rating(convertRating(issuerEntry.rating)),
+	assetReturn(calculateAssetReturn(randGen, issuerEntry, industryScenario))
+{}
+const double ScenarioEntry::calculateAssetReturn(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario)
+{
+	double random3 = randGen.rand();
+	double assetReturn =  (issuerEntry.correl * industryScenario.industryDraw) + (sqrt(1 - (issuerEntry.correl*issuerEntry.correl)) * random3);
+	cout << assetReturn << "\n";
+	return assetReturn;
 }
 const int ScenarioEntry::convertRating(string rating)
 {
@@ -33,13 +67,14 @@ const int ScenarioEntry::convertRating(string rating)
 }
 Scenario::Scenario(NormalRandomNumberGenerator& randGen, IssuerData& issuerData, IndustryData& industryData)
 {
+	IndustryScenarioData industryScenarioData(randGen, industryData);
 	for (size_t i = 0, n = issuerData.size(); i < n; i++)
 	{
 		IssuerEntry& issuerEntry = issuerData.at(i);
-		IndustryEntry* industryEntry = industryData.getByName(issuerEntry.industry);
-		if (!industryEntry)
+		IndustryScenario* industryScenario = industryScenarioData.getByName(issuerEntry.industry);
+		if (!industryScenario)
 			throw runtime_error("No known industry entry for \"" + issuerEntry.industry + "\"");
-		push_back(ScenarioEntry(randGen, issuerEntry, *industryEntry));
+		push_back(ScenarioEntry(randGen, issuerEntry, *industryScenario));
 	}
 }
 ScenarioEntry* Scenario::getByName(string name)
