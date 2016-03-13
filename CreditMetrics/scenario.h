@@ -33,11 +33,12 @@ class ScenarioEntry
 public:
 	ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix);
 	const string name;
-	const int rating;
-	const double assetReturn;
+	const double percentile;
+	const size_t rating;
 private:
-	const double calculateAssetReturn(NormalRandomNumberGenerator&, IssuerEntry&, IndustryScenario&);
-	const int convertRating(string);
+	const size_t calculateRating(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix);
+	const double calculatePercentile(NormalRandomNumberGenerator&, IssuerEntry&, IndustryScenario&);
+	const size_t convertRating(string);
 };
 /*! Scenario
 Create a set scenarios, one for each company, at the end of the year.

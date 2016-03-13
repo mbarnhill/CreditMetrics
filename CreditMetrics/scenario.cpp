@@ -33,10 +33,21 @@ IndustryScenario* IndustryScenarioData::getByName(string industry)
 }
 ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix) :
 	name(issuerEntry.name),
-	rating(convertRating(issuerEntry.rating)),
-	assetReturn(calculateAssetReturn(randGen, issuerEntry, industryScenario))
-{}
-const double ScenarioEntry::calculateAssetReturn(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario)
+	percentile(calculatePercentile(randGen, issuerEntry, industryScenario)),
+	rating(calculateRating(randGen, issuerEntry, industryScenario, transitionMatrix)) {}
+const size_t ScenarioEntry::calculateRating(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix)
+{
+	size_t rating = convertRating(issuerEntry.rating);
+	//Assumes rating >= 0 && <= 7
+	MatrixRow& row = transitionMatrix.cumSumMatrix[rating];
+	for (size_t i = row.size() - 1; i >= 0; i--)
+	{ 
+		if (percentile <= row[i])
+			return i;
+	}
+	throw new runtime_error("Failed to find rating");
+}
+const double ScenarioEntry::calculatePercentile(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario)
 {
 	double random3 = randGen.rand();
 	double assetReturn =  (issuerEntry.correl * industryScenario.industryDraw) + (sqrt(1 - (issuerEntry.correl*issuerEntry.correl)) * random3);
@@ -44,9 +55,9 @@ const double ScenarioEntry::calculateAssetReturn(NormalRandomNumberGenerator& ra
 	double percentile = boost::math::cdf(norm, assetReturn);
 	return percentile;
 }
-const int ScenarioEntry::convertRating(string rating)
+const size_t ScenarioEntry::convertRating(string rating)
 {
-	int convertedRating;
+	size_t convertedRating;
 	if (rating == "AAA")
 		convertedRating = 0;
 	else if (rating == "AA")

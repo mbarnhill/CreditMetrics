@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
-		int N = 1;
+		int N = 2000;
 		Monte monteCarlo(N, NormalRandomNumberGenerator(0, 1), issuerData, industryData, transitionMatrix);
 	
 		// Response for Part B, Step 5)
@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
 		}
 		double cvarPercentile = cvar / (double)(((100 - percentile)*0.01)*changeInValues.size());
 	
+		cout << "Note: Negative VaR indicates a loss" << endl;
 		cout << "VaR at the 95th percentile is " << var95Percentile << endl;
 		cout << "VaR at the 99th percentile is " << var99Percentile << endl;
 		cout << "CVaR at the desired percentile is " << cvarPercentile << endl;
