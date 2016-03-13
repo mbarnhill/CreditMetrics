@@ -1,9 +1,13 @@
 #include "scenario.h"
 
-ScenarioEntry::ScenarioEntry(IssuerEntry& entry) :
-	name(entry.name),
-	rating(convertRating(entry.rating))
+ScenarioEntry::ScenarioEntry(IssuerEntry& issuerEntry, IndustryEntry& industryEntry) :
+	name(issuerEntry.name),
+	rating(calculateRating(convertRating(issuerEntry.rating), issuerEntry.correl, industryEntry.correl))
 {}
+const int ScenarioEntry::calculateRating(int rating, double issuerCorrel, double industryCorrel)
+{
+	return 0;
+}
 const int ScenarioEntry::convertRating(string rating)
 {
 	int convertedRating;
@@ -27,10 +31,13 @@ const int ScenarioEntry::convertRating(string rating)
 		convertedRating = 7;
 	return convertedRating;
 }
-Scenario::Scenario(IssuerData& data)
+Scenario::Scenario(IssuerData& issuerData, IndustryData& industryData)
 {
-	for (size_t i = 0, n = data.size(); i < n; i++)
-		push_back(ScenarioEntry(data.at(i)));
+	for (size_t i = 0, n = issuerData.size(); i < n; i++)
+	{
+		IssuerEntry& issuerEntry = issuerData.at(i);
+		push_back(ScenarioEntry(issuerEntry, *industryData.getByName(issuerEntry.name)));
+	}
 }
 ScenarioEntry* Scenario::getByName(string name)
 {

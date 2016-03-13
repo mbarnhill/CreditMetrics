@@ -160,7 +160,7 @@
     <ClInclude Include="yields.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CreditMetrics.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="csv.cpp" />
     <ClCompile Include="industries.cpp" />
     <ClCompile Include="issuers.cpp" />

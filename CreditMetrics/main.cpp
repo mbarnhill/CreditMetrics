@@ -35,20 +35,14 @@ int main(int argc, char* argv[])
 		// Read in all the .csv files and create transition and correlation matrices.
 		IssuerData issuerData;
 		IndustryData industryData;
-		cout << industryData.toString();
-		// cout << issuerData.toString();
 		PortfolioData portfolioData;
-		// cout << portfolioData.toString();
 		YieldData yieldData;
-		// cout << yieldData.toString();
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
-		// cout << correlationMatrix.toString();
 		Matrix transitionMatrix("transition_matrix_for_project.csv", 3);
 		
 		// Add an additional matrix row to represent defaulted companies.
 		MatrixRow row{ 0,0,0,0,0,0,0,1 };
 		transitionMatrix.push_back(row);
-		// cout << transitionMatrix.toString();
 
 		// Response for Part B, Step 2)
 		// Get reported and theoretical portfolio values.
@@ -83,7 +77,7 @@ int main(int argc, char* argv[])
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
 		int N = 2000;
-		Monte monteCarlo(N, issuerData);
+		Monte monteCarlo(N, issuerData, industryData);
 	
 		// Response for Part B, Step 5)
 		// Go through the N scenarios and compute the value of the portfolio,

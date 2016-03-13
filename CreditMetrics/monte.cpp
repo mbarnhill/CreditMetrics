@@ -1,10 +1,10 @@
 #include "monte.h"
 
-Monte::Monte(int N, IssuerData& issuerData)
+Monte::Monte(int N, IssuerData& issuerData, IndustryData& industryData)
 {
 	for (size_t i = 0; i < N; i++)
 	{
-		scenarios.push_back(Scenario(issuerData));
+		scenarios.push_back(Scenario(issuerData, industryData));
 	}
 }
 vector<Scenario> scenarios;
