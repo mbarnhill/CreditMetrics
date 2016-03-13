@@ -15,7 +15,7 @@ public:
 	const string name;
 	const string rating;
 	const string industry;
-	const double index;
+	const double correl;
 	const string toString();
 };
 /*! IssuerData

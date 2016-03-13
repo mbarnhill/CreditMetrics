@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="csv.h" />
     <ClInclude Include="csv.hxx" />
+    <ClInclude Include="industries.h" />
     <ClInclude Include="issuers.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="monte.h" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="CreditMetrics.cpp" />
     <ClCompile Include="csv.cpp" />
+    <ClCompile Include="industries.cpp" />
     <ClCompile Include="issuers.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="monte.cpp" />

@@ -48,6 +48,9 @@
     <ClInclude Include="monte.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="industries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="monte.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="industries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

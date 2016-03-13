@@ -18,6 +18,7 @@
 #include "matrix.h"
 #include "scenario.h"
 #include "monte.h"
+#include "industries.h"
 
 using namespace std;
 
