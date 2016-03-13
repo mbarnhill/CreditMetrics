@@ -12,4 +12,13 @@ private:
 	mt19937 gen;
 	uniform_real_distribution<> dis;
 };
+class NormalRandomNumberGenerator
+{
+public:
+	NormalRandomNumberGenerator(double mean, double stdev);
+	double rand();
+private:
+	mt19937 gen;
+	normal_distribution<> dis;
+};
 #endif

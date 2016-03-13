@@ -1,10 +1,10 @@
 #include "scenario.h"
-
-ScenarioEntry::ScenarioEntry(IssuerEntry& issuerEntry, IndustryEntry& industryEntry) :
+#include <iostream>
+ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryEntry& industryEntry) :
 	name(issuerEntry.name),
-	rating(calculateRating(convertRating(issuerEntry.rating), issuerEntry.correl, industryEntry.correl))
+	rating(calculateRating(randGen, convertRating(issuerEntry.rating), issuerEntry.correl, industryEntry.correl))
 {}
-const int ScenarioEntry::calculateRating(int rating, double issuerCorrel, double industryCorrel)
+const int ScenarioEntry::calculateRating(NormalRandomNumberGenerator& randGen, int rating, double issuerCorrel, double industryCorrel)
 {
 	return 0;
 }
@@ -31,7 +31,7 @@ const int ScenarioEntry::convertRating(string rating)
 		convertedRating = 7;
 	return convertedRating;
 }
-Scenario::Scenario(IssuerData& issuerData, IndustryData& industryData)
+Scenario::Scenario(NormalRandomNumberGenerator& randGen, IssuerData& issuerData, IndustryData& industryData)
 {
 	for (size_t i = 0, n = issuerData.size(); i < n; i++)
 	{
@@ -39,7 +39,7 @@ Scenario::Scenario(IssuerData& issuerData, IndustryData& industryData)
 		IndustryEntry* industryEntry = industryData.getByName(issuerEntry.industry);
 		if (!industryEntry)
 			throw runtime_error("No known industry entry for \"" + issuerEntry.industry + "\"");
-		push_back(ScenarioEntry(issuerEntry, *industryEntry));
+		push_back(ScenarioEntry(randGen, issuerEntry, *industryEntry));
 	}
 }
 ScenarioEntry* Scenario::getByName(string name)

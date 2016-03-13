@@ -7,3 +7,10 @@ double UniformRandomNumberGenerator::rand()
 {
 	return dis(gen);
 }
+NormalRandomNumberGenerator::NormalRandomNumberGenerator(double mean, double stdev) :
+	gen(random_device()()),
+	dis(mean, stdev) { }
+double NormalRandomNumberGenerator::rand()
+{
+	return dis(gen);
+}

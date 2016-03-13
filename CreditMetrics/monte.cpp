@@ -1,10 +1,10 @@
 #include "monte.h"
 
-Monte::Monte(int N, IssuerData& issuerData, IndustryData& industryData)
+Monte::Monte(int N, NormalRandomNumberGenerator& randGen, IssuerData& issuerData, IndustryData& industryData)
 {
 	for (size_t i = 0; i < N; i++)
 	{
-		scenarios.push_back(Scenario(issuerData, industryData));
+		scenarios.push_back(Scenario(randGen, issuerData, industryData));
 	}
 }
 vector<Scenario> scenarios;
