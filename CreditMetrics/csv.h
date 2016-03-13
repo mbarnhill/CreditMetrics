@@ -25,6 +25,7 @@ string sanitizeString(string);
 template <class R> class CSV : public vector<R>
 {
 public:
+	CSV();
 	CSV(const string&, size_t);
 	const string toString();
 };

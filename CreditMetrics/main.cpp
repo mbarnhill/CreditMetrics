@@ -15,6 +15,7 @@
 #include "portfolio.h"
 #include "yields.h"
 #include "matrix.h"
+#include "transition_matrix.h"
 #include "scenario.h"
 #include "monte.h"
 #include "industries.h"
@@ -36,11 +37,7 @@ int main(int argc, char* argv[])
 		PortfolioData portfolioData;
 		YieldData yieldData;
 		Matrix correlationMatrix("correlation_matrix_for_project.csv", 1);
-		Matrix transitionMatrix("transition_matrix_for_project.csv", 3);
-		
-		// Add an additional matrix row to represent defaulted companies.
-		MatrixRow row{ 0,0,0,0,0,0,0,1 };
-		transitionMatrix.push_back(row);
+		TransitionMatrix transitionMatrix;
 
 		// Response for Part B, Step 2)
 		// Get reported and theoretical portfolio values.
@@ -70,12 +67,11 @@ int main(int argc, char* argv[])
 			}
 			priceMatrix(i, priceMatrix.size2() - 1) = row.exprr * 100;
 		}
-		//cout << priceMatrix << endl;
 
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
 		int N = 1;
-		Monte monteCarlo(N, NormalRandomNumberGenerator(0, 1), issuerData, industryData);
+		Monte monteCarlo(N, NormalRandomNumberGenerator(0, 1), issuerData, industryData, transitionMatrix);
 	
 		// Response for Part B, Step 5)
 		// Go through the N scenarios and compute the value of the portfolio,

@@ -1,3 +1,4 @@
+template <class R> CSV<R>::CSV() { }
 template <class R> CSV<R>::CSV(const string& filename, size_t skipLines)
 {
 	ifstream file(filename);

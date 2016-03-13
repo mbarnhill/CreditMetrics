@@ -6,6 +6,7 @@
 #include "issuers.h"
 #include "industries.h"
 #include "rand.h"
+#include "transition_matrix.h"
 
 class IndustryScenario
 {
@@ -30,7 +31,7 @@ For now we let all scenarios be the same rating the companies started with.
 class ScenarioEntry
 {
 public:
-	ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario);
+	ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix);
 	const string name;
 	const int rating;
 	const double assetReturn;
@@ -44,7 +45,7 @@ Create a set scenarios, one for each company, at the end of the year.
 class Scenario : public vector<ScenarioEntry>
 {
 public:
-	Scenario(NormalRandomNumberGenerator&, IssuerData&, IndustryData&);
+	Scenario(NormalRandomNumberGenerator&, IssuerData&,IndustryData&,TransitionMatrix&);
 	vector<ScenarioEntry> entries;
 	ScenarioEntry* getByName(string);
 };

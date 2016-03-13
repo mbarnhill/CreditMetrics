@@ -1,6 +1,7 @@
 #include "scenario.h"
 #include <iostream>
 #include <math.h>
+#include <boost/math/distributions/normal.hpp>
 
 double IndustryScenario::calcIndustryDraw(NormalRandomNumberGenerator& randGen, IndustryEntry& industryEntry)
 {
@@ -30,7 +31,7 @@ IndustryScenario* IndustryScenarioData::getByName(string industry)
 	}
 	return nullptr;
 }
-ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario) :
+ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix) :
 	name(issuerEntry.name),
 	rating(convertRating(issuerEntry.rating)),
 	assetReturn(calculateAssetReturn(randGen, issuerEntry, industryScenario))
@@ -39,8 +40,9 @@ const double ScenarioEntry::calculateAssetReturn(NormalRandomNumberGenerator& ra
 {
 	double random3 = randGen.rand();
 	double assetReturn =  (issuerEntry.correl * industryScenario.industryDraw) + (sqrt(1 - (issuerEntry.correl*issuerEntry.correl)) * random3);
-	cout << assetReturn << "\n";
-	return assetReturn;
+	boost::math::normal norm;
+	double percentile = boost::math::cdf(norm, assetReturn);
+	return percentile;
 }
 const int ScenarioEntry::convertRating(string rating)
 {
@@ -65,7 +67,7 @@ const int ScenarioEntry::convertRating(string rating)
 		convertedRating = 7;
 	return convertedRating;
 }
-Scenario::Scenario(NormalRandomNumberGenerator& randGen, IssuerData& issuerData, IndustryData& industryData)
+Scenario::Scenario(NormalRandomNumberGenerator& randGen, IssuerData& issuerData, IndustryData& industryData, TransitionMatrix& transitionMatrix)
 {
 	IndustryScenarioData industryScenarioData(randGen, industryData);
 	for (size_t i = 0, n = issuerData.size(); i < n; i++)
@@ -74,7 +76,7 @@ Scenario::Scenario(NormalRandomNumberGenerator& randGen, IssuerData& issuerData,
 		IndustryScenario* industryScenario = industryScenarioData.getByName(issuerEntry.industry);
 		if (!industryScenario)
 			throw runtime_error("No known industry entry for \"" + issuerEntry.industry + "\"");
-		push_back(ScenarioEntry(randGen, issuerEntry, *industryScenario));
+		push_back(ScenarioEntry(randGen, issuerEntry, *industryScenario, transitionMatrix));
 	}
 }
 ScenarioEntry* Scenario::getByName(string name)

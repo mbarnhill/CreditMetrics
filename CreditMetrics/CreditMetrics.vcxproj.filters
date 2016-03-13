@@ -54,6 +54,9 @@
     <ClInclude Include="rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="transition_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -87,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transition_matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
