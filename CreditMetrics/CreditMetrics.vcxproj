@@ -149,18 +149,30 @@
   <ItemGroup>
     <ClInclude Include="csv.h" />
     <ClInclude Include="csv.hxx" />
+    <ClInclude Include="issuers.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="monte.h" />
+    <ClInclude Include="portfolio.h" />
+    <ClInclude Include="scenario.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="yields.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CreditMetrics.cpp" />
     <ClCompile Include="csv.cpp" />
+    <ClCompile Include="issuers.cpp" />
+    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="monte.cpp" />
+    <ClCompile Include="portfolio.cpp" />
+    <ClCompile Include="scenario.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="yields.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

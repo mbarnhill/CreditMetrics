@@ -3,17 +3,15 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <sstream>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include <functional> 
 #include <numeric>
 #include <cctype>
 #include <locale>
-#include <random>
 #include <boost/algorithm/string.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
 using namespace std;
