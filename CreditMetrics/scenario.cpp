@@ -36,7 +36,10 @@ Scenario::Scenario(IssuerData& issuerData, IndustryData& industryData)
 	for (size_t i = 0, n = issuerData.size(); i < n; i++)
 	{
 		IssuerEntry& issuerEntry = issuerData.at(i);
-		push_back(ScenarioEntry(issuerEntry, *industryData.getByName(issuerEntry.name)));
+		IndustryEntry* industryEntry = industryData.getByName(issuerEntry.industry);
+		if (!industryEntry)
+			throw runtime_error("No known industry entry for \"" + issuerEntry.industry + "\"");
+		push_back(ScenarioEntry(issuerEntry, *industryEntry));
 	}
 }
 ScenarioEntry* Scenario::getByName(string name)

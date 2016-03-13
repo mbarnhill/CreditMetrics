@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include <numeric>
-#include <random>
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "csv.h"
@@ -19,6 +18,7 @@
 #include "scenario.h"
 #include "monte.h"
 #include "industries.h"
+#include "rand.h"
 
 using namespace std;
 
@@ -26,10 +26,8 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		// Sets up random number generator
-		random_device rd;
-		mt19937 gen(rd());
-		uniform_real_distribution<> dis(0, 1);
+		//Random number generator
+		UniformRandomNumberGenerator unirand(0, 1);
 
 		// Response for Part B, Step 1) 
 		// Read in all the .csv files and create transition and correlation matrices.
@@ -63,7 +61,7 @@ int main(int argc, char* argv[])
 			if (row.instrumentType == "CDS")
 			{
 				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
-					priceMatrix(i, j) = dis(gen);
+					priceMatrix(i, j) = unirand.rand();
 			}
 			else
 			{

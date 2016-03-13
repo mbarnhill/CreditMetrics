@@ -1,7 +1,7 @@
 #include "industries.h"
 
 IndustryEntry::IndustryEntry(const vector<string>& cells) :
-	industry(cells.at(0)),
+	industry(sanitizeString(cells.at(0))),
 	correl(convertDouble(cells.at(1))) {}
 
 const string IndustryEntry::toString()
