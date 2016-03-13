@@ -26,6 +26,7 @@ template <class R> class CSV : public vector<R>
 {
 public:
 	CSV(const string&, size_t);
+	const string toString();
 };
 
 #include "csv.hxx"

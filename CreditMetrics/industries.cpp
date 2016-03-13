@@ -9,8 +9,8 @@ const string IndustryEntry::toString()
 	return string()
 		+ industry + "," + to_string(correl);
 }
-Industries::Industries() : CSV("industries.csv", 1) {}
-IndustryEntry* Industries::getByName(string industry)
+IndustryData::IndustryData() : CSV("industries.csv", 1) {}
+IndustryEntry* IndustryData::getByName(string industry)
 {
 	for (size_t i = 0, n = size(); i < n; i++)
 	{

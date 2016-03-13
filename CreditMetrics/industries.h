@@ -19,10 +19,10 @@ public:
 /*! IssuerData
 Holds the rows of industry entries read from the industries.csv file
 */
-class Industries : public CSV<IndustryEntry>
+class IndustryData : public CSV<IndustryEntry>
 {
 public:
-	Industries();
+	IndustryData();
 	/*!
 	\param name an industry name
 	\return row containing information about the industry. Nullptr if not found.

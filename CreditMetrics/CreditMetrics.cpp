@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
 		// Response for Part B, Step 1) 
 		// Read in all the .csv files and create transition and correlation matrices.
 		IssuerData issuerData;
+		IndustryData industryData;
+		cout << industryData.toString();
 		// cout << issuerData.toString();
 		PortfolioData portfolioData;
 		// cout << portfolioData.toString();
