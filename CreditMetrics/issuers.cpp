@@ -3,15 +3,16 @@
 IssuerEntry::IssuerEntry(const vector<string>& cells) :
 	name(sanitizeString(cells.at(0))),
 	rating(sanitizeString(cells.at(1))),
-	industry(sanitizeString(cells.at(2)))
+	industry(sanitizeString(cells.at(2))),
+	index(convertDouble(cells.at(3)))
 {}
 const string IssuerEntry::toString()
 {
 	return string()
-		+ name + "," + rating + "," + industry;
+		+ name + "," + rating + "," + industry + "," + to_string(index);
 }
 
-IssuerData::IssuerData(): CSV("issuers_old.csv", 1) { }
+IssuerData::IssuerData(): CSV("issuers.csv", 1) { }
 
 IssuerEntry* IssuerData::getByName(string name)
 {
