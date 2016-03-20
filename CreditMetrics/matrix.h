@@ -11,7 +11,6 @@ class MatrixRow : public vector<double>
 public:
 	MatrixRow(const size_t size);
 	MatrixRow(const vector<string>&);
-	using vector::vector;
 	const string toString();
 };
 /*! Matrix

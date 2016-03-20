@@ -34,13 +34,13 @@ template <class R> CSV<R>::CSV(const string& filename, size_t skipLines)
 		{
 			continue;
 		}
-		push_back(R(cells));
+		this->push_back(R(cells));
 	}
 }
 template <class R> const string CSV<R>::toString()
 {
 	string ret;
-	for (size_t i = 0, n = size(); i < n; i++)
-		ret = ret + at(i).toString() + "\n";
+	for (size_t i = 0, n = this->size(); i < n; i++)
+		ret = ret + this->at(i).toString() + "\n";
 	return ret;
 }

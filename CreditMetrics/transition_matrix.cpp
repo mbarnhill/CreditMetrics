@@ -7,7 +7,9 @@ Matrix TransitionMatrix::loadTransitionMatrix()
 {
 	// Add an additional matrix row to represent defaulted companies.
 	Matrix ret("transition_matrix_for_project.csv", 3);
-	ret.push_back({ 0,0,0,0,0,0,0,1 });
+	MatrixRow defaultRow(7); //Default 7 rows to 0
+	defaultRow.push_back(1); //Add last row as 1
+	ret.push_back(defaultRow);
 	for (size_t i = 0, n = ret.rows(); i < n; i++)
 	{
 		for (size_t j = 0, m = ret.columns(); j < m;  j++)

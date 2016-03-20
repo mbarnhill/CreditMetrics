@@ -40,10 +40,14 @@ const size_t ScenarioEntry::calculateRating(NormalRandomNumberGenerator& randGen
 	size_t rating = convertRating(issuerEntry.rating);
 	//Assumes rating >= 0 && <= 7
 	MatrixRow& row = transitionMatrix.cumSumMatrix[rating];
-	for (size_t i = row.size() - 1; i >= 0; i--)
-	{ 
+	size_t i = row.size() - 1;
+	while (true)
+	{
 		if (percentile <= row[i])
 			return i;
+		if (i == 0)
+			break;
+		i--;
 	}
 	throw new runtime_error("Failed to find rating");
 }

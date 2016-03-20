@@ -1,4 +1,4 @@
-#ifndef __yeilds_h__
+#ifndef __yields_h__
 #define __yields_h__
 
 #include <string>

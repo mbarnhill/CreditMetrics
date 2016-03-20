@@ -1,4 +1,4 @@
-/*! CreditMetrics.cpp : Defines the entry point for the console application.
+/*! main.cpp : Defines the entry point for the console application.
 	Note: The given .csv files are not formatted consistently. The .csv parsers below are 
 	designed to handle the inconsistencies present in the files in a somewhat 
 	general manner by removing extra characters and white space.
@@ -71,7 +71,8 @@ int main(int argc, char* argv[])
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
 		int N = 2000;
-		Monte monteCarlo(N, NormalRandomNumberGenerator(0, 1), issuerData, industryData, transitionMatrix);
+		NormalRandomNumberGenerator nrand(0,1);
+		Monte monteCarlo(N, nrand, issuerData, industryData, transitionMatrix);
 	
 		// Response for Part B, Step 5)
 		// Go through the N scenarios and compute the value of the portfolio,
@@ -104,7 +105,7 @@ int main(int argc, char* argv[])
 		// NOTE: This calculation of standard deviation may not work for small values. 
 		// TO DO: Fix this so a standard deviation of 0 does not cause an overflow.
 		double stdev = sqrt((sq_sum / (double)changeInValues.size()) - (meanChangeInValue * meanChangeInValue));
-		// QuickFix: Set stdev to zero if stdev is +/-NaN, due to above issue.
+		// Quick Fix: Set stdev to zero if stdev is +/-NaN, due to above issue.
 		if (stdev != stdev)
 			stdev = 0;
 
