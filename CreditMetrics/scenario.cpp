@@ -34,22 +34,21 @@ IndustryScenario* IndustryScenarioData::getByName(string industry)
 ScenarioEntry::ScenarioEntry(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix) :
 	name(issuerEntry.name),
 	percentile(calculatePercentile(randGen, issuerEntry, industryScenario)),
-	rating(calculateRating(randGen, issuerEntry, industryScenario, transitionMatrix)) {}
+	rating(calculateRating(randGen, issuerEntry, industryScenario, transitionMatrix)) { }
 const size_t ScenarioEntry::calculateRating(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario, TransitionMatrix& transitionMatrix)
 {
 	size_t rating = convertRating(issuerEntry.rating);
 	//Assumes rating >= 0 && <= 7
 	MatrixRow& row = transitionMatrix.cumSumMatrix[rating];
 	size_t i = row.size() - 1;
-	while (true)
+	for(size_t j = 0, n = row.size(); j<n; j++)
 	{
-		if (percentile <= row[i])
+		if(percentile <= row[i])
 			return i;
-		if (i == 0)
-			break;
 		i--;
 	}
-	throw new runtime_error("Failed to find rating");
+	cout << "Failed to find the rating. Using original rating: " << to_string(rating) << endl;
+	throw new runtime_error("Bad rating");
 }
 const double ScenarioEntry::calculatePercentile(NormalRandomNumberGenerator& randGen, IssuerEntry& issuerEntry, IndustryScenario& industryScenario)
 {

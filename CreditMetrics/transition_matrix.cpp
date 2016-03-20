@@ -25,7 +25,10 @@ Matrix TransitionMatrix::calculateCumSumMatrix(Matrix& matrix)
 	{
 		//For each column
 		MatrixRow& row = matrix[i];
-		for (size_t j = 0, n = row.size(); j < n; j++)
+		//First entry is always 1 to solve rounding errors
+		//Cummulative summations should always add to one
+		ret[i][0] = 1;
+		for (size_t j = 1, n = row.size(); j < n; j++)
 		{
 			double sum = 0;
 			//Sum forwards
