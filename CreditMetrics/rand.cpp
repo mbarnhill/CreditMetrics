@@ -14,3 +14,10 @@ double NormalRandomNumberGenerator::rand()
 {
 	return dis(gen);
 }
+BetaRandomNumberGenerator::BetaRandomNumberGenerator(double alpha, double beta) :
+	uniformRand(0, 1),
+	dis(alpha, beta) { }
+double BetaRandomNumberGenerator::rand()
+{
+	return boost::math::quantile(this->dis, this->uniformRand.rand());
+}

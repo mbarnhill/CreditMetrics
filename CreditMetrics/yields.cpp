@@ -4,24 +4,21 @@
 Labels the cells of the yield curve data
 */
 YieldEntry::YieldEntry(const vector<string>& cells) :
-	term(convertDouble(cells.at(0))),
-	aaa(convertPercent(cells.at(1))),
-	aa(convertPercent(cells.at(2))),
-	a(convertPercent(cells.at(3))),
-	bbb(convertPercent(cells.at(4))),
-	bb(convertPercent(cells.at(5))),
-	b(convertPercent(cells.at(6))),
-	ccc(convertPercent(cells.at(7))),
-	govt(convertPercent(cells.at(8)))
-{}
+	term(convertDouble(cells[0]))
+{
+	for(size_t i=1, n=cells.size(); i<n; i++)
+		this->push_back(convertPercent(cells[i]));
+}
 const string YieldEntry::toString()
 {
-	return string()
-		+ to_string(term) + "," + to_string(aaa) + ","
-		+ to_string(aa) + "," + to_string(a) + ","
-		+ to_string(bbb) + "," + to_string(bb) + ","
-		+ to_string(b) + "," + to_string(ccc) + ","
-		+ to_string(govt);
+	string ret;
+	ret = ret + to_string(this->term) + ",";
+	for(int i=0, n=this->size(); i<n; i++) {
+		ret = ret + to_string((*this)[i]);
+		if(i < (n-1))
+			ret = ret + ",";
+	}
+	return ret;
 }
 YieldData::YieldData() : CSV("yield_curve_for_project.csv", 1) { }
 YieldEntry* YieldData::getByTerm(double term)

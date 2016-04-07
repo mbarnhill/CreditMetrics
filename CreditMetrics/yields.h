@@ -7,11 +7,11 @@
 /*! YieldEntry
 Labels the cells of the yield curve data
 */
-class YieldEntry
+class YieldEntry : public vector<double>
 {
 public:
 	YieldEntry(const vector<string>&);
-	const double term, aaa, aa, a, bbb, bb, b, ccc, govt;
+	const double term;
 	const string toString();
 };
 /*! YieldData

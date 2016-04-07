@@ -13,6 +13,7 @@
 #include "csv.h"
 #include "issuers.h"
 #include "portfolio.h"
+#include "price_matrix.h"
 #include "yields.h"
 #include "matrix.h"
 #include "transition_matrix.h"
@@ -28,7 +29,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		//Random number generator
-		UniformRandomNumberGenerator unirand(0, 1);
+		//UniformRandomNumberGenerator unirand(0, 1);
 
 		// Response for Part B, Step 1) 
 		// Read in all the .csv files and create transition and correlation matrices.
@@ -44,29 +45,8 @@ int main(int argc, char* argv[])
 		cout << "The initial reported portfolio value is " << portfolioData.getReportedValue() << endl;
 		cout << "The initial theoretical portfolio value is " << portfolioData.getTheorValue() << endl;
 
-		/* Response for Part B, Step 3) 
-		Return a matrix of possible prices for each instrument for each possible credit rating.
-		For the moment, we designate each performing bond price to be the theoretical price from above, 
-		and each performing CDS to be a random number between 0 and 1 (on a notional of $100).
-		Defaulted bonds and CDSs are designated as the expected recovery values.
-		NOTE: requires the boost library.
-		*/
-		boost::numeric::ublas::matrix<double> priceMatrix(portfolioData.size(), 8);
-		for (size_t i = 0, n1 = priceMatrix.size1(); i < n1; i++)
-		{
-			PortfolioEntry& row = portfolioData.at(i);
-			if (row.instrumentType == "CDS")
-			{
-				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
-					priceMatrix(i, j) = unirand.rand();
-			}
-			else
-			{
-				for (size_t j = 0, n2 = priceMatrix.size2() - 1; j < n2; j++)
-					priceMatrix(i, j) = row.cleanPrice;
-			}
-			priceMatrix(i, priceMatrix.size2() - 1) = row.exprr * 100;
-		}
+		//Calculate prices for each portfolio based on yields
+		PriceMatrix priceMatrix(portfolioData, yieldData);
 
 		// Response for Part B, Step 4)
 		// Set N generate N scenarios for the ratings of the companies.
@@ -90,7 +70,7 @@ int main(int argc, char* argv[])
 				ScenarioEntry* scenarioEntry = scenario.getByName(portfolio.name);
 				if (!scenarioEntry)
 					throw runtime_error("No known scenario entry for \"" + portfolio.name + "\"");
-				portfolioValue = portfolioValue + ((priceMatrix(j, scenarioEntry->rating)*portfolio.notional) * ((double)1/100));
+				portfolioValue = portfolioValue + ((priceMatrix[j][scenarioEntry->rating]*portfolio.notional) * ((double)1/100));
 			}
 			portfolioValues.push_back(portfolioValue);
 			double changeInValue = portfolioValue - portfolioData.getTheorValue();
